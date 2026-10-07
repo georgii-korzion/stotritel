@@ -172,6 +172,22 @@ def test_telegram_429_waits_retry_after(monkeypatch):
     assert len(calls) == 2 and 2 in waits
 
 
+def test_telegram_group_upgraded_to_supergroup():
+    chats = []
+
+    def handler(request):
+        chat = json.loads(request.content)["chat_id"]
+        chats.append(chat)
+        if chat == "-1001234567890":
+            return httpx.Response(400, json={"ok": False, "description": "Bad Request: group chat was upgraded to a supergroup chat",
+                                             "parameters": {"migrate_to_chat_id": -1009876543210}})
+        return httpx.Response(200, json={"ok": True})
+
+    tg = make_tg(handler)
+    assert tg.send("a") and tg.send("b")
+    assert chats == ["-1001234567890", "-1009876543210", "-1009876543210"]
+
+
 def test_telegram_error_returns_false():
     assert not make_tg(lambda r: httpx.Response(400, json={"ok": False, "description": "chat not found"})).send("x")
 

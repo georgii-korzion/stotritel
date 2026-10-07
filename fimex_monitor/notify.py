@@ -302,6 +302,12 @@ class Telegram:
                 if not self._wait(retry):
                     return False
                 continue
+            migrated = (data.get("parameters") or {}).get("migrate_to_chat_id")
+            if migrated and str(migrated) != str(self.chat_id):
+                # группа стала супергруппой — у неё новый id; пишем туда и просим обновить настройку
+                log.warning("Telegram: группа стала супергруппой, новый id %s — обновите TG_CHAT_ID", migrated)
+                self.chat_id = payload["chat_id"] = str(migrated)
+                continue
             log.warning("Telegram: HTTP %s %s", r.status_code, data.get("description", ""))
             return False
         return False
