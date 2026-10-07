@@ -86,3 +86,13 @@ def test_samsung_duplicate_titles(parsed):
 
 def test_gaps(parsed):
     assert len(find_gaps(group(parsed.offers), Thresholds())) == 41
+
+
+def test_stage3_three_alerts(tmp_path):
+    """Этап 3: −3 %, −6 %, −$120 у позиции дороже $3000 и разрыв при падении < 5 % — ровно три алерта."""
+    from tools import make_stage3_sample as stage3
+
+    dst = tmp_path / ("stage3-" + SAMPLE.name)
+    assert stage3.main([str(SAMPLE), str(dst)]) == 0
+    ev = stage3.verify(SAMPLE, dst)
+    assert len(ev.alerts) == 3
