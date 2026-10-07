@@ -1,0 +1,14 @@
+# секреты и локальные данные — не коммитить
+.env
+.env.*
+!.env.example
+/samples/
+/data/
+/data*/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
